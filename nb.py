@@ -2,6 +2,7 @@
 import sys
 import csv
 import pickle
+import time
 import pandas as pd
 import numpy as np
 
@@ -11,6 +12,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
+
+from sklearn.naive_bayas import GaussianNB, BernoulliNB, MultinomialNB
 
 
 def case_1():
@@ -23,53 +26,43 @@ def case_1():
     data = pd.read_csv(file_str, sep=',')
 
     print("Length: ", len(data))
-    #print("Shape: ", data.shape())
 
     global header
     header = data.columns.tolist()
     header.pop(0)
 
-    #print("Data: ", data.head())
-
-    #global X
-    #X = data.values[:, 0:1]
-    #Y = data.values[:, 0]
-
-    X = data.drop('color', axis=1)
+    #X = data.drop('color', axis=1)
     y = data['color']
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20)
+    #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20)
+    X_train, X_test = train_test_split(X, test_size=0.5, random_state=int(time.time()))
+	
+    gnb = GaussianNB()
+    gnb.fit(X_train["size", "act","age","inflated"].values, X_train["color"])
+	
+    y_pred = gnb.predict(X_test["size", "act","age","inflated"])
+    
+    print("Number of mislabeled points out of a total {} points : {}, performance {:05.2f}%"
+      .format(
+          X_test.shape[0],
+          (X_test["color"] != y_pred).sum(),
+          100*(1-(X_test["color"] != y_pred).sum()/X_test.shape[0])
+))
+	
+    #global classifier
+    #classifier = DecisionTreeClassifier()
+    #classifier.fit(X_train, y_train)
 
-    global classifier
-    classifier = DecisionTreeClassifier()
-    classifier.fit(X_train, y_train)
-
-    y_pred = classifier.predict(X_test)
+    #y_pred = classifier.predict(X_test)
     #print("X_test")
     #print(X_test)
 
-    print(confusion_matrix(y_test, y_pred))
-    print(classification_report(y_test, y_pred))
-
-    #x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size = 0.3, random_state = 100)
-
-    #clf_gini = DecisionTreeClassifier(criterion = "gini", random_state = 100, max_depth = 3, min_samples_leaf = 100)
-
-    #global classifier
-    #classifier = tree.DecisionTreeClassifier()
-    #classifier = classifier.fit(X, Y)
-    #tree = clf_gini.fit(x_train, y_train)
+    #print(confusion_matrix(y_test, y_pred))
+    #print(classification_report(y_test, y_pred
 
 
 
     main()
-
-    #clf_gini.predict([1,1,0,0,0])
-
-    #predict = clf_gini.predict(x_test)
-
-    #print("Accuracy ", accuracy_score(x_test, predict)*100)
-
 
 
 
@@ -95,15 +88,11 @@ def case_3():
     elif (choice == '1'):
 
         item_values = list()
-        #new_data = input("Enter new data\n")
         for item in header:
-            #item_values = input("What is the value for: ", str(item))
             print("What is the value for ", str(item))
             value = input(" ");
             item_values.extend(value);
-            #print(item)
 
-        #item_values = item_values.reshape(1, -1)
         guess = classifier.predict([[item_values[0],item_values[1],item_values[2],item_values[3]]]);
 
         if (guess == 0):
@@ -111,38 +100,6 @@ def case_3():
         if (guess == 1):
             print("The balloon is purple\n")
 
-        #y_pred = classifier.predict(['0','1','1','1','1'])
-
-        #with open(file_str, 'a') as csv:
-        #    csv.write(new_data)
-
-        #data = pd.read_csv(file_str, sep=',')
-
-        #print("Length: ", len(data))
-        #print("Shape: ", data.shape())
-
-        #print("Data: ", data.head())
-
-        #global X
-        #X = data.values[:, 0:1]
-        #Y = data.values[:, 0]
-
-        #X = data.drop('color', axis=1)
-        #y = data['color']
-
-        #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20)
-
-        #global classifier
-        #classifier = DecisionTreeClassifier()
-        #classifier.fit(X_train, y_train)
-
-        #y_pred = classifier.predict(X_test)
-        #print("X_test")
-        #print(X_test)
-
-
-        #print(confusion_matrix(y_test, y_pred))
-        #print(classification_report(y_test, y_pred))
 
     main()
 
@@ -159,14 +116,13 @@ def main():
     print("\n")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("Choose an option\n")
-    print("1: Learn a decision tree from training data\n")
-    print("2: Save the tree\n")
-    print("3: Apply the tree to new cases\n")
-    print("4: Load a tree model saved previously and apply the model to new cases\n")
+    print("1: Learn a naive bayesian classifier from training data\n")
+    print("2: Save the classifier\n")
+    print("3: Apply the classifier to new cases\n")
+    print("4: Load a model saved previously and apply the model to new cases\n")
     print("5: Quit")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 
-    #choice = input("Enter choice\n");
 
     choice = input("Enter choice\n")
 
