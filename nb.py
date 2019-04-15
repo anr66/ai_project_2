@@ -13,7 +13,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
-from sklearn.naive_bayas import GaussianNB, BernoulliNB, MultinomialNB
+from sklearn.naive_bayes import GaussianNB, BernoulliNB, MultinomialNB
 
 
 def case_1():
@@ -29,26 +29,33 @@ def case_1():
 
     global header
     header = data.columns.tolist()
-    header.pop(0)
+    #header.pop(0)
 
+    X = data
     #X = data.drop('color', axis=1)
     y = data['color']
 
     #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20)
     X_train, X_test = train_test_split(X, test_size=0.5, random_state=int(time.time()))
-	
+
+    global gnb
     gnb = GaussianNB()
-    gnb.fit(X_train["size", "act","age","inflated"].values, X_train["color"])
-	
-    y_pred = gnb.predict(X_test["size", "act","age","inflated"])
-    
+    #gnb.fit(X_train["size", "act","age","inflated"].values, X_train["color"])
+    gnb.fit(X,y)
+
+    y_pred = gnb.predict(X_test)
+
     print("Number of mislabeled points out of a total {} points : {}, performance {:05.2f}%"
       .format(
           X_test.shape[0],
           (X_test["color"] != y_pred).sum(),
           100*(1-(X_test["color"] != y_pred).sum()/X_test.shape[0])
 ))
-	
+
+    print("Number of elements: ", len(y_pred))
+    print("Number of 0: ", (len(y_pred)) - np.count_nonzero(y_pred))
+    print("Number of 1: ", np.count_nonzero(y_pred))
+
     #global classifier
     #classifier = DecisionTreeClassifier()
     #classifier.fit(X_train, y_train)
@@ -68,10 +75,10 @@ def case_1():
 
 def case_2():
 
-    tree_file = open(file_str + ".model", "wb")
-    pickle.dump(classifier, tree_file)
-    tree_file.close()
-    print("Tree saved")
+    nb_file = open(file_str + ".model", "wb")
+    pickle.dump(gnb, nb_file)
+    nb_file.close()
+    print("Classifier saved")
     main()
 
 
@@ -90,10 +97,15 @@ def case_3():
         item_values = list()
         for item in header:
             print("What is the value for ", str(item))
-            value = input(" ");
-            item_values.extend(value);
+            value = input(" ")
+            item_values.extend(value)
 
-        guess = classifier.predict([[item_values[0],item_values[1],item_values[2],item_values[3]]]);
+
+        my_array = np.asarray(item_values)
+        #my_array.reshape(1,-1)
+        #my_array = my_array.astype(np.float32)
+        #my_array = pd.to_numeric(1)
+        guess = gnb.predict([[int(my_array[0]),int(my_array[1]),int(my_array[2]),int(my_array[3]),int(my_array[4])]]);
 
         if (guess == 0):
             print("The balloon is yellow\n")
